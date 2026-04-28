@@ -1,0 +1,40 @@
+# ANPR System Configuration
+# All values shown are defaults — only override what you need.
+gate:
+  enabled: true
+  motion_threshold: 600      # Pixels: Higher = ignore small animals/birds
+  texture_threshold: 0.03    # Ratio: Higher = stricter (only dense edges)
+  resize_factor: 0.5         # Speed: Processing at 50% scale is 4x faster
+  
+detection:
+  model_path: "detect.tflite"
+  confidence_threshold: 0.50      # Min detection score (0–1)
+  nms_iou_threshold: 0.45         # NMS overlap threshold
+  min_plate_width_px: 120
+  min_plate_height_px: 40
+  pad_pixels: 10                  # Extra pixels around detected box
+
+ocr:
+  interval_frames: 5              # Run OCR every N frames (perf tuning)
+  languages: ["en"]
+  use_gpu: true
+  upscale_factor: 2.0
+  history_size: 7                 # Temporal smoothing window
+  min_votes: 3                    # Votes needed for stable read
+  min_confidence: 0.35
+
+access:
+  authorized_plates_file: "authorized_plates.txt"
+  reload_interval_seconds: 30     # Hot-reload interval
+  dedup_seconds: 20               # Suppress repeat logs for same plate
+
+logging:
+  log_file: "access_logs.csv"
+  app_log_file: "anpr.log"
+  level: "INFO"                   # DEBUG | INFO | WARNING | ERROR
+
+camera:
+  source: "0"                     # 0 = webcam, or RTSP URL, or file path
+  display: true
+  display_window_name: "ANPR"
+  fps_limit: null                 # null = uncapped

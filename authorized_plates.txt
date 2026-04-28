@@ -1,0 +1,5 @@
+# Authorized plates — managed by dashboard. One per line.
+DL01XY9999
+KA05MJ7777
+MH12AB1234
+MH12DE1433
