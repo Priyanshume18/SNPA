@@ -6,10 +6,10 @@
 ### Demo
 
 ![Dashboard](assets/Dashboard.png)
-![Detection](assets/Detection.png)
+![Detection](assets/Camera_output.png)
 
 **Watch demo video:**  
-[View Demo Video](https://drive.google.com/drive/folders/1oZfuvne9U219HA2rb_PgUK6cto5Q-Vi4?usp=drive_link)
+[Video](https://drive.google.com/drive/folders/1oZfuvne9U219HA2rb_PgUK6cto5Q-Vi4?usp=drive_link)
 
 ## Table of Contents
 
