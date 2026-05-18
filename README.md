@@ -1,7 +1,15 @@
-# 🚗 ANPR — Automatic Number Plate Recognition System
+# SNPA — Smart Number Plate Authorization System
 
 > Real-time vehicle access control for India's RTO plate formats.  
 > Detect · Read · Authorize · Log · Dashboard
+
+### Demo
+
+![Dashboard](assets/Dashboard.png)
+![Detection](assets/Detection.png)
+
+**Watch demo video:**  
+[View Demo Video](https://drive.google.com/drive/folders/1oZfuvne9U219HA2rb_PgUK6cto5Q-Vi4?usp=drive_link)
 
 ## Table of Contents
 
@@ -37,7 +45,6 @@ A separate Streamlit dashboard lets you add or remove authorized plates, view li
 | **OCR Waterfall** | Up to 5 preprocessing variants tried in priority order with early exit at 75% confidence — typically 1 EasyOCR call per plate |
 | **Perspective Correction** | Deskews angled plates before OCR using quadrilateral contour detection and `getPerspectiveTransform` |
 | **Position-Aware Correction** | Applies OCR confusion fixes (O↔0, B↔8, I↔1) only to structurally correct positions — prevents corrupting letter positions |
-| **Temporal Smoothing** | Majority-vote over a 7-frame history per screen bucket for stable reads |
 | **Stale Result Eviction** | Plates absent for >10 frames are removed from overlay and OCR history — prevents ghost labels |
 | **Hot-Reload Auth List** | Authorized plates file is re-read every 30 seconds without restarting the pipeline |
 | **Threaded Architecture** | Main thread handles capture + display at full camera speed; OCR runs in a background thread |
@@ -63,7 +70,7 @@ A separate Streamlit dashboard lets you add or remove authorized plates, view li
                         │        OCR THREAD             │
                         │                               │
                         │  Preprocess → EasyOCR         │
-                        │  (waterfall, early exit)      │
+                        │             (early exit)      │
                         │       ↓                       │
                         │  Normalize → Access Check     │
                         │       ↓                       │
@@ -141,8 +148,8 @@ All formats are normalized before comparison — spaces, hyphens, mixed case, an
 ### Step 1 — Clone or download the project
 
 ```bash
-git clone https://github.com/yourname/anpr_improved.git
-cd anpr_improved
+git clone https://github.com/Priyanshume18/SNPA.git
+cd SNPA
 ```
 
 ### Step 2 — Create and activate a virtual environment
@@ -168,7 +175,7 @@ pip install -r requirements.txt
 
 ### Step 4 — Add your TFLite detection model
 
-Place your `detect.tflite` file in the project root (same folder as `main.py`).
+Place your `detect.tflite` file in the project root (same folder as `main.py`) or use mine.
 
 A good starting point is the [EfficientDet Lite0](https://tfhub.dev/tensorflow/lite-model/efficientdet/lite0/detection/metadata/1) from TensorFlow Hub, or any custom plate detector trained for your environment.
 
@@ -264,12 +271,6 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser.
 
 The Streamlit dashboard has two panels:
 
-### Screenshots
-
-![Dashboard](assets/Dashboard.png)
-
-![Detection](assets/Detection.png)
-
 **Left — Authorized Database**
 - Add a new plate by typing it and clicking Add. The input is validated and normalized before writing.
 - Each plate has a **Remove** button for instant revocation.
@@ -292,18 +293,6 @@ Every frame passes through a two-stage gate before the expensive detection pipel
 2. **Laplacian texture check** — computes edge density inside motion blobs. License plates are text-dense (high Laplacian variance ≈ 100–500). Sky and road are smooth (variance < 30). If no motion region has sufficient texture, the frame is skipped.
 
 A 2-second **holdoff** keeps the gate open after the last motion event, preventing flickering when a vehicle slows down or briefly stops.
-
-### OCR Waterfall
-
-When a plate crop reaches the OCR engine, preprocessing variants are tried in order:
-
-```
-1. CLAHE + Otsu threshold          ← ~80% of plates exit here
-2. Perspective-corrected + CLAHE   ← angled cameras
-3. Inverted (dark background)      ← some state plate series
-4. Adaptive threshold              ← uneven lighting / shadows
-5. Perspective + Inverted          ← worst case
-```
 
 The loop exits as soon as any variant returns confidence ≥ 0.75. In good conditions this means exactly one EasyOCR call — the same cost as the original single-variant system — with fallback accuracy for difficult cases.
 
@@ -375,8 +364,7 @@ Both the dashboard and the pipeline use the same `plate_mod.normalize()` functio
 
 ## Known Limitations
 
-- **No trained plate detector included** — you must supply a `detect.tflite` model. System accuracy depends heavily on detection quality.
-- **Indian plates only** — the normalization regex covers Standard, Short-district, and BH-series formats. Adding other countries requires extending `_PLATE_SPECS` in `plate.py`.
+- **Indian plates only** — the normalization regex covers Standard, Short-district formats. Adding other countries requires extending `_PLATE_SPECS` in `plate.py`.
 - **No formal accuracy benchmark** — accuracy is qualitatively good under daylight conditions at 0.5–2 m distance. A labelled dataset evaluation is recommended for production use.
 - **Single camera** — the pipeline is designed for one camera stream. Multi-camera deployment requires running multiple pipeline processes with a shared database backend.
 - **No gate hardware integration** — the system logs and displays access decisions but does not control physical gate hardware. This requires wiring a relay to the `access_control.py` module.
